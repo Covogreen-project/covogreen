@@ -10,7 +10,7 @@ var co = require('co');
 module.exports = function (router) {
 
     router.post('/', InscriptionTrajetController.doIt);
-    router.post('/verif', InscriptionTrajetController.verif);
+    router.get('/verif/:id_journey', InscriptionTrajetController.verif);
 
     var getInscriptionJourneyByJourneyAndUser = co.wrap(InscriptionTrajetController.getInscriptionJourneyByJourneyAndUser);
     router.get('/byjourneyuser/:id_journey', getInscriptionJourneyByJourneyAndUser);

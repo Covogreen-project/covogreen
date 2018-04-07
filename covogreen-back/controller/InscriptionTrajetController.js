@@ -21,7 +21,59 @@ var InscriptionTrajetController = {
      * @param req Trame envoyée par le client
      * @param res Trame de retour vers le client
      */
-    doIt: co.wrap(function * (req, res) {
+    doIt: function (req, res) {
+        // On décode le json
+        var token = authToken.getToken(req);
+
+        if(token.revoked)
+            res.status(200).send({success: false, message: ["Error Token"]});
+
+        var journey = null;
+        var user = null;
+        var test = null;
+
+        Journey.findById(parseInt(req.body.idTrajet))
+            .then(function (response) {
+                journey = response.dataValues;
+            });
+        User.findById(parseInt(token.id_user))
+            .then(function (response) {
+                user = response.dataValues;
+            });
+
+        if(journey != null)
+            if(user != null)
+                if(journey.seats_available >= 1){
+
+                    InscriptionTrajetController.checkSubscribe(journey, user)
+                        .then(function (response) {
+                            test = response.dataValues;
+                        });
+
+                    if(test == false){
+                        var inscriptionJourney = null;
+                        journey.seats_available = journey.seats_available-1;
+                        journey.save();
+
+                        InscriptionJourney.create({ "id_user" : user.id_user, "id_trajet" : journey.id_journey})
+                            .then(function (response) {
+                                inscriptionJourney = response.dataValues;
+                            });
+
+                        res.status(200).send({success: true});
+                    }
+                    else
+                        res.status(200).send({success: false, message: ["Error the user is already subscribed to journey"]});
+                }
+                else
+                    res.status(200).send({success: false, message: ["Error the journey is full"]});
+            else
+                res.status(200).send({success: false, message: ["Impossible to find user"]});
+        else
+            res.status(200).send({success: false, message: ["Impossible to find journey"]});
+    },
+
+    /*doIt: co.wrap(function * (req, res) {
         req.accepts('application/json');
         // On décode le json
         var token = authToken.getToken(req);
@@ -50,14 +102,57 @@ var InscriptionTrajetController = {
                 res.status(200).send({success: false, message: ["Impossible to find user"]});
         else
             res.status(200).send({success: false, message: ["Impossible to find journey"]});
-    }),
+    }),*/
 
     /**
      * Cette methode indique au client si l'utilisateur est déjà inscrit au trajet ou pas
      * @param req Trame envoyée par le client
      * @param res Trame de retour vers le client
      */
-    verif: co.wrap(function * (req, res) {
+    verif: function (req, res) {
+
+        // On décode le json
+        var token = authToken.getToken(req);
+        var id_journey = req.params.id_journey;
+
+        if(token != null) {
+
+            var journey = null;
+            var user = null;
+            var test = null;
+
+            Journey.findById(parseInt(id_journey))
+                .then(function (response) {
+                    journey = response.dataValues;
+                });
+
+            User.findById(parseInt(token.id_user))
+                .then(function (response) {
+                    user = response.dataValues;
+                });
+
+            if(journey != null)
+                if(user != null){
+
+                    InscriptionTrajetController.checkSubscribe(journey, user)
+                        .then(function (response) {
+                            test = response.dataValues;
+                        });
+
+                    if(test == false)
+                        res.status(200).send({success: true});
+                    else
+                        res.status(200).send({success: false, message: ["User is already subscribed to journey"]});
+                }
+                else
+                    res.status(200).send({success: false, message: ["Impossible to find user"]});
+            else
+                res.status(200).send({success: false, message: ["Impossible to find journey"]});
+
+        }
+    },
+
+    /*verif: co.wrap(function * (req, res) {
         req.accepts('application/json');
 
         // On décode le json
@@ -82,7 +177,7 @@ var InscriptionTrajetController = {
                 res.status(200).send({success: false, message: ["Impossible to find journey"]});
 
         }
-    }),
+    }),*/
 
     /**
      * Cette methode vérifie si l'utilisateur est déjà inscrit au trajet

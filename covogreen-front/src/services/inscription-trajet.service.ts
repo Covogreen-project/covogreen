@@ -33,6 +33,10 @@ export class InscriptionTrajetService {
 
     // Effectue une requete vers le serveur pour vérifier qu'un user est inscrit ou pas.
     verifInscription(idTrajet: number): Observable<any> {
+        return this.http.get(this.uri + 'inscriptionTrajet/verif/' + idTrajet, this.authRequest.requestOptions);
+    }
+
+    /*verifInscription(idTrajet: number): Observable<any> {
         let jsonData = {
             'idTrajet' : idTrajet
         };
@@ -40,7 +44,7 @@ export class InscriptionTrajetService {
         return this.http.post(this.uri + 'inscriptionTrajet/verif', jsonData, this.authRequest.requestOptions).map((response: Response) => {
             return response.json();
         });
-    }
+    }*/
 
     // Effectue une requete vers le serveur pour désinscrire un user à l'offre.
     desinscriptionTrajet(idTrajet: number): Observable<any> {

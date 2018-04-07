@@ -18,7 +18,26 @@ var RechercheTrajetController = {
    * @param req Trame envoyée par le client
    * @param res Trame de retour vers le client
    */
-  doIt: co.wrap(function * (req, res) {
+  doIt: function (req, res) {
+      req.accepts('application/json');
+      var result = RechercheTrajetController.checkRequest(req.body);
+
+      if(result.success){
+          var condition = RechercheTrajetController.getResearchCondition(req.body);
+          RechercheTrajetController.getListTrajet(req.body, result, condition)
+              .then(function (response) {
+                  result = response.dataValues;
+
+                  RechercheTrajetController.getNbPage(condition)
+                      .then(function (response) {
+                            result.nb_total_page = response.dataValues;
+                      });
+              });
+      }
+      res.send(JSON.stringify(result));
+  },
+
+  /*doIt: co.wrap(function * (req, res) {
   	req.accepts('application/json');
     var result = RechercheTrajetController.checkRequest(req.body);
     if(result.success){
@@ -27,7 +46,7 @@ var RechercheTrajetController = {
       result.nb_total_page = yield RechercheTrajetController.getNbPage(condition);
     }
   	res.send(JSON.stringify(result));
-  }),
+  }),*/
 
   /**
    * Cette methode retourne une liste de Trajet selon la condition
@@ -100,7 +119,25 @@ var RechercheTrajetController = {
    * @param journey Le trajet
    * @return le nombre de page
    */
-  getNbPage: co.wrap(function * (condition)
+  getNbPage: function (condition)
+  {
+      condition.offset = 0;
+      condition.limit = 0;
+      var result = [];
+      var nb_page = 0;
+
+      Journey.findAndCountAll(condition)
+          .then(function (response) {
+                result = response;
+                nb_page = parseInt(result.count / 10);
+
+                if( (result.count % 10) != 0) nb_page++;
+          });
+
+      return nb_page;
+  },
+
+  /*getNbPage: co.wrap(function * (condition)
   {
     condition.offset = 0;
     condition.limit = 0;
@@ -112,7 +149,7 @@ var RechercheTrajetController = {
       nb_page++;
 
     return nb_page;
-  }),
+  }),*/
 
   /**
    * Génère l'objet condition en fonction de la requête reçue pour rechercher les trajets avec sequelize

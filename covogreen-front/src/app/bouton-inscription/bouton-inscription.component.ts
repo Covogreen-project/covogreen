@@ -70,9 +70,10 @@ export class BoutonInscriptionComponent implements OnInit {
   	*	Envoi une requete vers le backend pour déterminer si l'utilisateur X est inscrit au trajet Y.
   	*/
     verifUserInscription(){
-        this.inscriptionService.verifInscription(this.idTrajet).subscribe( (res: Response) => {
-        	this.inscrit = (res["success"] === false) ? true : false ;
-        });
+        this.inscriptionService.verifInscription(this.idTrajet)
+            .subscribe( (res: Response) => {
+                this.inscrit = (res["success"] === false) ? true : false ;
+            });
     }
 
     /**

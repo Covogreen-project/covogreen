@@ -59,15 +59,31 @@ var JourneyController = {
      */
     getJourneys: function (req, res) {
 
+        var result = [];
+
         Journey.findAll()
-        .then(function (response) {
-            console.log('getJourneys :', response);
-            res.status(200).send(response);
-        })
-        .catch(function (error) {
-            console.log('Fail find for getting journeys :', error);
-            res.status(500).send("Echec de la récupération du profil.");
-        });
+            .then(function (response) {
+
+                var journey = null;
+                var user = null;
+
+                var journey = {
+                    id: response.id_journey,
+                    id_driver: driver.id_user,
+                    depart: journeyList[i].origin,
+                    destination: journeyList[i].destination,
+                    auteur: driver.firstName + " " + driver.lastName,
+                    date_trajet: journeyList[i].date_journey,
+                    nombre_place_disponible: journeyList[i].seats_available
+                };
+
+                console.log('getJourneys :', response);
+                res.status(200).send(response);
+            })
+            .catch(function (error) {
+                console.log('Fail find for getting journeys :', error);
+                res.status(500).send("Echec de la récupération du profil.");
+            });
 
     },
 

@@ -283,9 +283,8 @@ var ChatController = {
         var message = req.body.message;
         var idUser = parseInt(userToken.id_user);
 
-        var reqSql = yield Chat.create({id_auteur: idUser, id_trajet: idTrajet, message: message});
-
         try{
+            var reqSql = yield Chat.create({id_auteur: idUser, id_trajet: idTrajet, message: message});
             if(reqSql)
             {   // Le message a été ajouté
                 // On récupère les participants du trajet
@@ -297,7 +296,7 @@ var ChatController = {
                     yield ChatController.sendEmail(userInfo.username, userInfo.email);
                 }
 
-                res.send({
+                res.status(200).send({
                     success: true
                 });
             }
@@ -308,7 +307,6 @@ var ChatController = {
             }
         }catch(erreur){
             out["errors"].push("Une erreur est survenue lors de l'execution de la req sql");
-            res.status(500).send(out);
         }
     }),
 

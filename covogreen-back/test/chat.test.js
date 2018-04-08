@@ -216,7 +216,7 @@ describe('Test ChatBack', function() {
         request(app).post('/chat/getLastMessageById')
             .send({
                 idTrajet: 5,
-                idMessage: 2
+                idMessage: 100
             })
             .set('Authorization', 'bearer ')
             .set(headersUser)
@@ -227,6 +227,7 @@ describe('Test ChatBack', function() {
                 }else{
                     var dataJson = JSON.parse(res.text)
                     chai.assert.isObject(dataJson);
+                    console.log(dataJson);
                     chai.assert.isEmpty(dataJson["messages"], "Messages doit etre vide");
                 }
             });
